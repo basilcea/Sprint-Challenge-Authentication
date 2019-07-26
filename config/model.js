@@ -6,6 +6,10 @@ const insertUser = async (data) => {
 const getUser = async(id) => {
 return await db('users').where('id', id)
 }
+
+const getUserByUsername = async(username) => {
+    return await db('users').where('username', username)
+}
 module.exports ={
-    insertUser , getUser
+    insertUser , getUser , getUserByUsername
 }
