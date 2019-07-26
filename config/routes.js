@@ -1,14 +1,11 @@
 const axios = require('axios');
-
+const express = require('express');
+const route = express.Router()
 const { authenticate } = require('../auth/authenticate');
 const Users = require('./model')
 const crypt = require('../auth/encrypt')
 
-module.exports = server => {
-  server.post('/api/register', register);
-  server.post('/api/login', login);
-  server.get('/api/jokes', authenticate, getJokes);
-};
+
 
 const status = (res , code , data) => {
 return res.status(code).json(data)
@@ -17,34 +14,36 @@ const register = async(req, res) =>{
   // implement user registration
   const {username , password} = req.body
   try{
+    console.log(username ,password)
     const checkUserNameExists = await Users.getUserByUsername(username)
-    if(!!checkUserNameExists){
-      status(res , 404 , 'Username already exists')
+    console.log(!checkUserNameExists)
+    if(!checkUserNameExists){
+      return status(res , 400 , 'Username already exists')
     }
     const hashed = crypt.hashPassword(password) 
-    const addUser = Users.insertUser({username , hashed})
-    status(res, 201, addUser)
+    const addUser = Users.insertUser({username , password:hashed})
+    return status(res, 201, addUser)
   }catch(err){
-    status(res , 500 , 'Cannot Register User')
+    return status(res , 500 , err.toString())
   }
   
 }
 
-function login(req, res) {
+const login= async(req, res) =>{
   const {username , password} = req.body
   try{
     const getUser = await Users.getUserByUsername(username);
     if (!getUser) {
-      status(res, 404, "Username does not exist");
+      return status(res, 404, "Username does not exist");
     }
     if (!crypted.comparePassword(password, getUser.password)) {
-      status(res, 404, "Wrong Password");
+      return status(res, 404, "Wrong Password");
     }
-    req.session.user=crypt.generateToken(getUser)
-    status(res , 200 , `Welcome ${getUser.username}`)
+    token = crypt.generateToken(getUser)
+    return status(res , 200 , `Welcome ${getUser.username}, token:${token}`)
 
   }catch(err){
-    status(res, 500, "Cannot Login");
+    return status(res, 500, "Cannot Login");
   }
   // implement user login
 }
@@ -63,3 +62,10 @@ function getJokes(req, res) {
       res.status(500).json({ message: 'Error Fetching Jokes', error: err });
     });
 }
+
+
+route.post('/api/register', register);
+route.post('/api/login', login);
+route.get('/api/jokes', authenticate, getJokes);
+
+module.exports = route

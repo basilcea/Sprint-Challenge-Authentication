@@ -8,8 +8,12 @@ return await db('users').where('id', id)
 }
 
 const getUserByUsername = async(username) => {
-    return await db('users').where('username', username)
+    return await db('users').where('username',username)
+   
+}
+const getAll = async() => {
+    return await db('users')
 }
 module.exports ={
-    insertUser , getUser , getUserByUsername
+    insertUser , getUser , getUserByUsername, getAll
 }
