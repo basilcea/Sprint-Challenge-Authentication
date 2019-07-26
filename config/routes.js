@@ -15,9 +15,9 @@ return res.status(code).json(data)
 }
 const register = async(req, res) =>{
   // implement user registration
-  const [username , password] = req.body
+  const {username , password} = req.body
   try{
-    const checkUserNameExists = Users.getUserByUsername(username)
+    const checkUserNameExists = await Users.getUserByUsername(username)
     if(!!checkUserNameExists){
       status(res , 404 , 'Username already exists')
     }
@@ -31,6 +31,21 @@ const register = async(req, res) =>{
 }
 
 function login(req, res) {
+  const {username , password} = req.body
+  try{
+    const getUser = await Users.getUserByUsername(username);
+    if (!getUser) {
+      status(res, 404, "Username does not exist");
+    }
+    if (!crypted.comparePassword(password, getUser.password)) {
+      status(res, 404, "Wrong Password");
+    }
+    req.session.user=crypt.generateToken(getUser)
+    status(res , 200 , `Welcome ${getUser.username}`)
+
+  }catch(err){
+    status(res, 500, "Cannot Login");
+  }
   // implement user login
 }
 
