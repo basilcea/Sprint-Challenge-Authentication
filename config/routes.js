@@ -14,10 +14,8 @@ const register = async(req, res) =>{
   // implement user registration
   const {username , password} = req.body
   try{
-    console.log(username ,password)
     const checkUserNameExists = await Users.getUserByUsername(username)
-    console.log(!checkUserNameExists)
-    if(!checkUserNameExists){
+    if(!!checkUserNameExists){
       return status(res , 400 , 'Username already exists')
     }
     const hashed = crypt.hashPassword(password) 
@@ -36,14 +34,15 @@ const login= async(req, res) =>{
     if (!getUser) {
       return status(res, 404, "Username does not exist");
     }
-    if (!crypted.comparePassword(password, getUser.password)) {
+    if (!crypt.comparePassword(password, getUser.password)) {
       return status(res, 404, "Wrong Password");
     }
+ 
     token = crypt.generateToken(getUser)
     return status(res , 200 , `Welcome ${getUser.username}, token:${token}`)
 
   }catch(err){
-    return status(res, 500, "Cannot Login");
+    return status(res, 500, err.toString());
   }
   // implement user login
 }

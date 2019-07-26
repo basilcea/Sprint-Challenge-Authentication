@@ -8,7 +8,7 @@ return await db('users').where('id', id)
 }
 
 const getUserByUsername = async(username) => {
-    return await db('users').where('username',username)
+    return await db('users').where('username',username).first()
    
 }
 const getAll = async() => {
