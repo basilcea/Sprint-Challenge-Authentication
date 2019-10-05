@@ -37,10 +37,11 @@ const login= async(req, res) =>{
     if (!crypt.comparePassword(password, getUser.password)) {
       return status(res, 404, "Wrong Password");
     }
- 
+  
     token = crypt.generateToken(getUser)
-    return status(res , 200 , `Welcome ${getUser.username}, token:${token}`)
-
+   
+    req.session.token = token
+    return status(res , 200 , {data:getUser, token})
   }catch(err){
     return status(res, 500, err.toString());
   }
